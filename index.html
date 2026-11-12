@@ -19,7 +19,7 @@ button:disabled{opacity:.5}
 #s{min-height:1.4em;color:#c2c0b6;font-size:15px}
 #s.err{color:#d97e72}
 #k{display:none}
-#x{background:none;color:#c2c0b6;border:1px solid #3a3a38;font-size:15px;font-weight:600;padding:12px}
+#x,#y{background:none;color:#c2c0b6;border:1px solid #3a3a38;font-size:15px;font-weight:600;padding:12px}
 #q{display:none;background:#fff;border-radius:10px;padding:16px;text-align:center;color:#111110;font-size:14px}
 #q img{width:100%;max-width:320px;height:auto;image-rendering:pixelated;display:block;margin:0 auto 8px}
 </style></head><body>
@@ -29,6 +29,8 @@ button:disabled{opacity:.5}
 <button id="b">Saada</button>
 <div id="s"></div>
 <button id="x" type="button">Kanna üle uude telefoni</button>
+<button id="y" type="button">Näita tokenit (kopeerimiseks)</button>
+<div id="tk" style="display:none"><input id="tv" readonly><button id="tc" type="button" style="margin-top:8px;width:100%">Kopeeri</button></div>
 <div id="q"></div>
 <script src="qrcode.js"></script>
 <script>
@@ -79,6 +81,18 @@ async function send(){
 }
 bt.addEventListener("click",send);
 window.addEventListener("online",function(){ if(queue().length&&lsGet(KEY)) flush().then(function(ok){ if(ok) say("Salvestatud ✓"); }); });
+document.getElementById("y").addEventListener("click",function(){
+  var b=document.getElementById("tk"), v=document.getElementById("tv"), token=lsGet(KEY);
+  if(b.style.display==="block"){b.style.display="none";v.value="";return;}
+  if(!token){say("Selles telefonis pole tokenit.",true);return;}
+  v.value=token; b.style.display="block"; v.focus(); v.select();
+});
+document.getElementById("tc").addEventListener("click",function(){
+  var v=document.getElementById("tv"); v.focus(); v.select(); v.setSelectionRange(0,9999);
+  var done=function(){say("Kopeeritud ✓ Kleebi uues telefonis tokeni lahtrisse ja kustuta siis kopeeritu.");};
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(v.value).then(done,function(){say("Vajuta tokenil pikalt ja vali Kopeeri.",true);});}
+  else{try{document.execCommand("copy");done();}catch(e){say("Vajuta tokenil pikalt ja vali Kopeeri.",true);}}
+});
 document.getElementById("x").addEventListener("click",function(){
   var q=document.getElementById("q"), token=lsGet(KEY);
   if(q.style.display==="block"){q.style.display="none";q.textContent="";return;}
