@@ -19,12 +19,18 @@ button:disabled{opacity:.5}
 #s{min-height:1.4em;color:#c2c0b6;font-size:15px}
 #s.err{color:#d97e72}
 #k{display:none}
+#x{background:none;color:#c2c0b6;border:1px solid #3a3a38;font-size:15px;font-weight:600;padding:12px}
+#q{display:none;background:#fff;border-radius:10px;padding:16px;text-align:center;color:#111110;font-size:14px}
+#q img{width:100%;max-width:320px;height:auto;image-rendering:pixelated;display:block;margin:0 auto 8px}
 </style></head><body>
 <h1>Mõttekast</h1>
 <input id="k" type="password" autocomplete="off" placeholder="GitHubi token (küsitakse ainult kord)">
 <textarea id="t" placeholder="Kirjuta või räägi mõte…" autofocus></textarea>
 <button id="b">Saada</button>
 <div id="s"></div>
+<button id="x" type="button">Kanna üle uude telefoni</button>
+<div id="q"></div>
+<script src="qrcode.js"></script>
 <script>
 var OWNER="jonatanrand-CRmarketer", REPO="second-brain-inbox", KEY="sb_token", Q="sb_queue";
 var ta=document.getElementById("t"), ki=document.getElementById("k"), st=document.getElementById("s"), bt=document.getElementById("b");
@@ -73,5 +79,14 @@ async function send(){
 }
 bt.addEventListener("click",send);
 window.addEventListener("online",function(){ if(queue().length&&lsGet(KEY)) flush().then(function(ok){ if(ok) say("Salvestatud ✓"); }); });
+document.getElementById("x").addEventListener("click",function(){
+  var q=document.getElementById("q"), token=lsGet(KEY);
+  if(q.style.display==="block"){q.style.display="none";q.textContent="";return;}
+  if(!token){say("Selles telefonis pole tokenit, mida üle kanda.",true);return;}
+  var url=location.origin+location.pathname+"#t="+token;
+  var qr=qrcode(0,"M"); qr.addData(url); qr.make();
+  q.innerHTML=qr.createImgTag(6,8)+"Skanni uue telefoni kaameraga ja ava link Safaris. Seejärel sulge see QR siin (vajuta nuppu uuesti).";
+  q.style.display="block";
+});
 if(!lsGet(KEY)) needKey(); else if(queue().length) say(queue().length+" saatmata mõtet. Vajuta Saada.",true);
 </script></body></html>
